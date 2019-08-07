@@ -1,0 +1,661 @@
+<html>
+
+<head>
+    <title>Calibration</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-75065234-3', 'auto');
+        ga('send', 'pageview', '/ebf3e171-6a12-465d-b03b-2afd5674ce05.html');
+    </script>
+</head>
+
+<body onload="getAllCalibrations()">
+
+
+    <template id="newCardFront">
+        <div id="calibrationFront" class="card">
+            <div id="calibrationBody" class="card-body">
+
+                <div id="calibrationHeadings" class="row">
+                    <div class="col-md-2">
+                        <i id="deleteCardExternal" class="fa fa-remove" style="font-size:48px;color:red"></i>
+                    </div>
+                    <div class="col-md-8">
+                        <h2 class="card-title">New Tester</h2>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+
+                <div id="calibrationInputs" class="card-text">
+                    <center>
+                        <input type="text" id="serialNumber" name="serialNumber" placeholder="Serial Number" />
+                        <br /><br />
+                        <input type="text" id="frequency" name="frequency" placeholder="Empty Freq." />
+                    </center>
+                </div>
+
+                <br />
+
+                <div id="calibrationButtons" class="row">
+                    <div id="avgCol" class="col-md-6">
+                        <input type="checkbox" name="averageCheckBox" id="averageCheckBox" />
+                        <label for="averageCheckBox">Average</label>
+                    </div>
+
+                    <div id="startCol" class="col-md-6">
+                        <button onclick="createCalibrationPages()" id="startButton" class="btn btn-primary btn-lg"
+                            style="float: right;">Start</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="newCardPage">
+        <div id="calibrationPage" class="card">
+            <div class="card-body">
+
+                <div id="calibrationDetails" class="row">
+                    <div class="col-md-2">
+                        <i id="deleteCardInternal" class="fa fa-remove" style="font-size:48px;color:red"></i>
+                    </div>
+                    <div id="serialNumberCol" class="col-md-5">
+                        <h7 id="serialTitle" class="card-title">SerialNumber</h7>
+                    </div>
+                    <div id="counterCol" class="col-md-5">
+                        <h4 id="counterTitle" class="card-title">MR -20</h4>
+                    </div>
+                </div>
+
+                <div id="calibrationInputs" class="card-text">
+                    <center>
+                        <input id="ffInput" type="number" placeholder="FF" />
+                        <br /><br />
+                        <input id="mrInput" type="number" placeholder="MR" />
+                    </center>
+                </div>
+
+                <br />
+
+                <div id="calibrationButtons" class="row">
+                    <div id="previousCol" class="col-md-6">
+                        <button id="PreviousButton" class="btn btn-primary btn-lg">Previous</button>
+                    </div>
+
+                    <div id="nextCol" class="col-md-6">
+                        <button id="nextButton" class="btn btn-primary btn-lg" style="float: right;"> Next </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="newRow">
+        <div id="newRow" class="row">
+            <div id="col1" name="col1" class="col-md-4"></div>
+            <div id="col2" name="col2" class="col-md-4"></div>
+            <div id="col3" name="col3" class="col-md-4"></div>
+        </div>
+    </template>
+
+    <center>
+        <br>
+        <h1>All Calibrations</h1>
+        <a href="/logout"><button class="btn btn-outline btn-danger">
+                Logout
+            </button></a>
+    </center>
+    <hr /><br />
+
+
+    <!-- SEARCH SECTION -->
+
+    <center>
+        <div class="row">
+            <div class="col-md-4">
+                <button id="refreshButton" class="btn btn-outline btn-xs btn-default" onclick="getAllCalibrations()"><i
+                        class="fa fa-refresh" style="font-size:48px"></i></button>
+            </div>
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4">
+                <button id="toggleButton" class="btn btn-outline btn-xs btn-default" data-toggle="collapse"
+                    data-target="#demo">Show / Hide<br>Search</button>
+            </div>
+        </div>
+
+    </center>
+
+    <br>
+
+    <div class="container">
+        <input onclick="showSearchBox()" class="form-control" id="calibInput" type="text" placeholder="Search..">
+        <br>
+        <div id="demo" class="collapse">
+            <table id="quickSearch" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Added By</th>
+                        <th>View</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody id="calibTable">
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH SECTION ENDS -->
+
+    <!-- OLD SEARCH SECTION -->
+
+    <!--         <div class="container">
+      
+                  <form action="/search" method="POST">
+<center>
+                <div class="input-group mb-3">
+                  <input type="text" id="smartQuery" name="smartQuery" class="form-control" required="true">
+                </div>
+
+                <input type="submit" id="submitButton" name="submitButton" class="btn btn-outline btn-lg btn-primary" value="Search">
+    </center>	
+</form> -->
+
+    <!-- OLD SEARCH SECTION ENDS -->
+
+    <br>
+
+    <div class="container">
+
+        <button id="newCardButton" onclick="createNewCard()"><i class="fa fa-plus-circle"
+                style="font-size:48px"></i></button>
+
+        <div id="allCards"></div>
+
+    </div>
+
+    <script>
+        var totalCards = 0
+        var currentRow = 0
+        var currentCol = 0
+
+        function showParticularPage(n, j) {
+            $('#calibration' + n + ' #calibration_' + n + '_' + j).show()
+        }
+
+        function hideParticularPage(n, j) {
+            $('#calibration' + n + ' #calibration_' + n + '_' + j).hide()
+        }
+
+        function gotoNextPage(n, currentPage) {
+            if ($('#calibration' + n + ' #calibration_' + n + '_' + currentPage + ' #calibrationInputs #ffInput_' + n +
+                    '_' + currentPage).val() == "" || $('#calibration' + n + ' #calibration_' + n + '_' + currentPage +
+                    ' #calibrationInputs #mrInput_' + n + '_' + currentPage).val() == "") {
+                alert("Fields must be appropriately entered!");
+                return;
+            }
+
+
+            if (isAverageChecked(n) && averagePageStatus["page_" + n + "_" + currentPage]) {
+                storeAndMoveOn(n, currentPage);
+                delete averagePageStatus["page_" + n + "_" + currentPage];
+
+                let ffAverageValue = 0;
+                let mrAverageValue = 0;
+
+                let allValues = averageLogicDataHolder["page_" + n + "_" + currentPage];
+                let valuesCount = allValues.length;
+                allValues.forEach(element => {
+                    ffAverageValue += parseInt(element[0]);
+                    mrAverageValue += parseInt(element[1]);
+                });
+
+                ffAverageValue /= valuesCount;
+                mrAverageValue /= valuesCount;
+                $('#calibration' + n + ' #calibration_' + n + '_' + currentPage + ' #calibrationInputs #ffInput_' + n +
+                    '_' + currentPage).val(ffAverageValue);
+                $('#calibration' + n + ' #calibration_' + n + '_' + currentPage + ' #calibrationInputs #mrInput_' + n +
+                    '_' + currentPage).val(mrAverageValue);
+            }
+
+            $('#calibration' + n + ' #calibration_' + n + '_' + currentPage).hide()
+            $('#calibration' + n + ' #calibration_' + n + '_' + (currentPage + 1)).show()
+        }
+
+        function gotoPreviousPage(n, currentPage) {
+            $('#calibration' + n + ' #calibration_' + n + '_' + currentPage).hide()
+            $('#calibration' + n + ' #calibration_' + n + '_' + (currentPage - 1)).show()
+        }
+
+        function downloadObjectAsJson(exportObj, exportName) {
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+            var downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", exportName + ".json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function sendDataToServer(payload, pointName) {
+
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://calibration.glitch.me/receive/calibration",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "User-Agent": "PostmanRuntime/7.13.0",
+                    "Accept": "*/*",
+                    "Cache-Control": "no-cache",
+                    "Postman-Token": "7b28f1ea-41ef-48d5-895c-054cbfb57158,3396ad9c-323e-4983-b310-59305c21bd44",
+                    "Host": "calibration.glitch.me",
+                    "accept-encoding": "gzip, deflate",
+                    "content-length": "93",
+                    "Connection": "keep-alive",
+                    "cache-control": "no-cache"
+                },
+                "processData": false,
+                "data": JSON.stringify(payload)
+            }
+
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+            });
+        }
+
+        function saveData(n, pageIndex) {
+            if ($('#calibration' + n + ' #calibration_' + n + '_' + 15 + ' #calibrationInputs #ffInput_' + n + '_' + 15)
+                .val() == "" || $('#calibration' + n + ' #calibration_' + n + '_' + 15 +
+                    ' #calibrationInputs #mrInput_' + n + '_' + 15).val() == "") {
+                alert("Fields must be appropriately entered!");
+                return;
+            }
+
+
+            var calibrationData = {}
+            calibrationData["Empty Frequency"] = $('#calibration' + n + ' #calibration_' + n +
+                '_0 #calibrationInputs #frequency_' + n + '_0').val()
+            calibrationData["Serial Number"] = $('#calibration' + n + ' #calibration_' + n +
+                '_0 #calibrationInputs #serialNumber_' + n + '_0').val()
+
+            for (var i = 1; i <= 15; i++) {
+                calibrationData["FF " + (-20 + (i - 1) * 10)] = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationInputs #ffInput_' + n + '_' + i).val()
+                calibrationData["MR " + (-20 + (i - 1) * 10)] = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationInputs #mrInput_' + n + '_' + i).val()
+            }
+
+            sendDataToServer(calibrationData, calibrationData["Serial Number"])
+            downloadObjectAsJson(calibrationData, calibrationData["Serial Number"])
+        }
+
+        function updatePageAttributes(n) {
+
+            var serialNumber = $('#calibration' + totalCards + ' #calibration_' + n +
+                '_0 #calibrationInputs #serialNumber_' + n + '_0').val()
+            $('#calibration' + totalCards + ' #calibration_' + n + '_' + 1 +
+                ' #calibrationButtons #previousCol #previousButton').attr("disabled", "true")
+
+            // update the deletion logic for front card
+            $('#calibration' + totalCards + ' #calibration_' + n + '_' + 0 +
+                ' #calibrationHeadings #deleteCardExternal').attr("onclick", "destroyCard(" + n + ")");
+
+            for (var foo = 1; foo <= 15; foo++) {
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo +
+                    ' #calibrationDetails #serialNumberCol #serialTitle').html(serialNumber)
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo +
+                    ' #calibrationDetails #counterCol #counterTitle').html("MR " + (-20 + (foo - 1) * 10))
+
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo + ' #calibrationInputs #ffInput').attr(
+                    "id", "ffInput_" + n + "_" + foo)
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo + ' #calibrationInputs #mrInput').attr(
+                    "id", "mrInput_" + n + "_" + foo)
+
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo +
+                    ' #calibrationButtons #previousCol #previousButton').attr("onclick", "gotoPreviousPage(" + n +
+                    ", " + foo + ")")
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo +
+                    ' #calibrationButtons #nextCol #nextButton').attr("onclick", "gotoNextPage(" + n + ", " + foo +
+                    ")")
+
+                // update the deletion logic for all the internal cards
+                $('#calibration' + totalCards + ' #calibration_' + n + '_' + foo +
+                    ' #calibrationDetails #deleteCardInternal').attr("onclick", "destroyCard(" + n + ")");
+            }
+
+            $('#calibration' + totalCards + ' #calibration_' + n + '_' + 15 +
+                ' #calibrationButtons #nextCol #nextButton').html("Save")
+            $('#calibration' + totalCards + ' #calibration_' + n + '_' + 15 +
+                ' #calibrationButtons #nextCol #nextButton').attr("onclick", "saveData(" + n + ", " + foo + ")")
+        }
+
+        function isAverageChecked(n) {
+            return $('#calibration' + n + ' #calibration_' + n + '_0 #calibrationButtons #averageCheckBox_' + n + '_0')[
+                0].checked
+        }
+
+        // average logic
+        var averageLogicDataHolder = {}
+        var averagePageStatus = {}
+
+        function storeAndMoveOn(n, i) {
+            if ($('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationInputs #ffInput_' + n + '_' + i)
+                .val() == "" || $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationInputs #mrInput_' + n + '_' + i).val() == "") {
+                alert("Fields must be appropriately entered!");
+                return;
+            }
+
+
+            if (averagePageStatus["page_" + n + "_" + i]) {
+                averagePageStatus["page_" + n + "_" + i] += 1;
+            } else {
+                averagePageStatus["page_" + n + "_" + i] = 1;
+            }
+
+            var ffCurrentData = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                ' #calibrationInputs #ffInput_' + n + '_' + i).val()
+            var mrCurrentData = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                ' #calibrationInputs #mrInput_' + n + '_' + i).val()
+
+            if (averageLogicDataHolder["page_" + n + "_" + i]) {
+                averageLogicDataHolder["page_" + n + "_" + i].push([ffCurrentData, mrCurrentData]);
+            } else {
+                averageLogicDataHolder["page_" + n + "_" + i] = [
+                    [ffCurrentData, mrCurrentData]
+                ];
+            }
+
+            // show the counter for average count
+            let allValues = averageLogicDataHolder["page_" + n + "_" + i];
+            let valuesCount = allValues.length;
+            console.log(valuesCount)
+
+            if (valuesCount == 2) {
+                $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationButtons #nextCol #nextButton')
+                    .show()
+                $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationButtons #nextCol #repeatButton')
+                    .hide()
+                $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationDetails #counterCol #counterTitle #counterEl').html(valuesCount + 1)
+            } else if (valuesCount == 3) {
+                $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationDetails #counterCol #counterTitle #counterEl').html(valuesCount)
+            } else {
+                $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                    ' #calibrationDetails #counterCol #counterTitle #counterEl').html(valuesCount + 1)
+            }
+
+            // clear out current data to make space for next
+            $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationInputs #ffInput_' + n + '_' + i).val(
+                "");
+            $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationInputs #mrInput_' + n + '_' + i).val(
+                "");
+        }
+
+        function getSingleRecord(n) {
+            let serialNumber = $('#calibration' + n + ' #calibration_' + n + '_0 #calibrationInputs #serialNumber_' +
+                n + '_0').val()
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://calibration.glitch.me/calibration/" + serialNumber,
+                "method": "GET",
+                "headers": {
+                    "User-Agent": "PostmanRuntime/7.13.0",
+                    "Accept": "*/*",
+                    "Cache-Control": "no-cache",
+                    "Postman-Token": "6c3872e5-f123-495e-b390-1d01a126fa3c,d058ce90-a429-4b38-b8c4-cb7c24fa360f",
+                    "Host": "calibration.glitch.me",
+                    "accept-encoding": "gzip, deflate",
+                    "Connection": "keep-alive",
+                    "cache-control": "no-cache"
+                }
+            }
+
+            $.ajax(settings).done(function (response) {
+                console.log(response == "");
+                if (response == "") {
+                    $('#calibration' + n + ' #calibration_' + n + '_' + 0 +
+                        ' #calibrationButtons #startCol #startButton_' + n + '_0').prop("disabled", false)
+                } else {
+                    $('#calibration' + n + ' #calibration_' + n + '_' + 0 +
+                        ' #calibrationButtons #startCol #startButton_' + n + '_0').prop("disabled", true)
+                }
+                return response;
+            });
+        }
+
+
+        function createCalibrationPages(n) {
+            console.log(n);
+
+            if ($('#calibration' + n + ' #calibration_' + n + '_0 #calibrationInputs #serialNumber_' + n + '_0')
+            .val() == "" || $('#calibration' + n + ' #calibration_' + n + '_0 #calibrationInputs #frequency_' + n +
+                    '_0').val() == "") {
+                alert("Fields must be appropriately entered!");
+                return;
+            }
+
+            // .then(existStatus => {
+            //   console.log("got it")
+            //   console.log(existStatus)
+            //   if (existStatus != null) {
+            //     alert("A calibration with this Serial Number already exists!")
+            //     return;
+            //   }
+            // })
+            var averageCheck = false;
+            if (isAverageChecked(n)) {
+                averageCheck = true;
+            }
+
+            for (var i = 1; i <= 15; i++) {
+                var newCalibrationPage = document.getElementById("newCardPage")
+                var calibrationDiv = newCalibrationPage.content.querySelector("div")
+                var actualCalibration = document.importNode(calibrationDiv, true)
+                actualCalibration.id = "calibration_" + n + "_" + i
+                document.getElementById("calibration" + n).appendChild(actualCalibration)
+
+                if (averageCheck) {
+                    var originalObject = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                        ' #calibrationButtons #nextCol').html()
+                    var repeatButtonHtml =
+                        '<button id="repeatButton" class="btn btn-primary btn-lg" onclick="storeAndMoveOn(' + n + ', ' +
+                        i + ')">Again <i class="fa fa-repeat" style="font-size:20px;color:blue"></i></button>'
+                    $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationButtons #nextCol').html(
+                        repeatButtonHtml + originalObject)
+                    $('#calibration' + n + ' #calibration_' + n + '_' + i + ' #calibrationButtons #nextCol #nextButton')
+                        .hide()
+                }
+            }
+
+            hideParticularPage(n, 0)
+            showParticularPage(n, 1)
+            for (var k = 2; k <= 15; k++) {
+                hideParticularPage(n, k)
+            }
+
+            updatePageAttributes(n)
+
+            if (averageCheck) {
+                for (var i = 1; i <= 15; i++) {
+                    let titleComponent = $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                        ' #calibrationDetails #counterCol #counterTitle').html();
+                    let counterShower = '<span id="counterEl" class="badge badge-primary">' + 1 + '</span>'
+                    $('#calibration' + n + ' #calibration_' + n + '_' + i +
+                        ' #calibrationDetails #counterCol #counterTitle').html(titleComponent + counterShower)
+                }
+            }
+
+        }
+
+        function generateNewRow() {
+            currentRow += 1
+            var newRow = document.getElementById("newRow")
+            var rowDiv = newRow.content.querySelector("div")
+            var actualRow = document.importNode(rowDiv, true)
+            actualRow.id = "row" + currentRow
+            document.getElementById("allCards").appendChild(actualRow)
+        }
+
+        function generateNewCard() {
+            totalCards += 1
+
+            currentCol = (currentCol % 3) + 1
+            var newCard = document.getElementById("newCardFront")
+            var cardDiv = newCard.content.querySelector("div")
+            var actualCard = document.importNode(cardDiv, true)
+            actualCard.id = "calibration" + totalCards
+
+            var rowElements = document.getElementById("row" + currentRow).getElementsByTagName("*")
+            for (var i = 0; i < rowElements.length; i++) {
+                if (rowElements[i].id == "col" + currentCol) {
+                    rowElements[i].appendChild(actualCard)
+                }
+            }
+
+            $('#calibration' + totalCards + ' #calibrationBody #calibrationButtons #startButton').attr("onclick",
+                "createCalibrationPages(" + totalCards + ")")
+            $('#calibration' + totalCards + ' #calibrationBody').attr("id", "calibration_" + totalCards + "_0")
+            $('#calibration' + totalCards + ' #calibration_' + totalCards + '_0 #calibrationInputs #serialNumber').attr(
+                "id", "serialNumber_" + totalCards + "_0")
+            $('#calibration' + totalCards + ' #calibration_' + totalCards + '_0 #calibrationInputs #serialNumber_' +
+                totalCards + '_0').attr("oninput", "getSingleRecord(" + totalCards + ")")
+            $('#calibration' + totalCards + ' #calibration_' + totalCards + '_0 #calibrationInputs #frequency').attr(
+                "id", "frequency_" + totalCards + "_0")
+
+            $('#calibration' + totalCards + ' #calibration_' + totalCards +
+                '_0 #calibrationButtons #avgCol #averageCheckBox').attr("id", "averageCheckBox_" + totalCards +
+                "_0")
+            $('#calibration' + totalCards + ' #calibration_' + totalCards +
+                '_0 #calibrationButtons #startCol #startButton').attr("id", "startButton_" + totalCards + "_0")
+
+            $('#calibration' + totalCards + ' #calibration_' + totalCards + '_' + 0 +
+                ' #calibrationHeadings #deleteCardExternal').attr("onclick", "destroyCard(" + totalCards + ")");
+
+            $('#newCardButton').prop("disabled", false)
+        }
+
+        function createNewCard() {
+            $('#newCardButton').prop("disabled", true)
+
+            if (totalCards % 3 == 0) {
+                // add a new row
+                generateNewRow()
+
+                // add the new card
+                generateNewCard()
+
+            } else {
+                // add the new card
+                generateNewCard()
+
+            }
+
+        }
+    </script>
+
+    <script>
+        function getAllCalibrations() {
+
+            $('#calibTable').html("")
+
+
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://calibration.glitch.me/get/all",
+                "method": "GET",
+                "headers": {
+                    "User-Agent": "PostmanRuntime/7.13.0",
+                    "Accept": "*/*",
+                    "Cache-Control": "no-cache",
+                    "Postman-Token": "bd1a553a-f4d7-4ff1-b794-bde36576451f,84b418df-57c9-456a-a9ed-e499351f5db8",
+                    "Host": "calibration.glitch.me",
+                    "accept-encoding": "gzip, deflate",
+                    "Connection": "keep-alive",
+                    "cache-control": "no-cache"
+                }
+            }
+
+            $.ajax(settings).done(function (searchResults) {
+
+                // searchResults = JSON.stringify(searchResults);
+                // searchResults = JSON.parse(searchResults);
+                // searchResults = searchResults.replace(new RegExp("&#34;", 'g'), "\"");
+                // searchResults = searchResults.replace(new RegExp("&quot;", 'g'), "\"");
+                // searchResults = JSON.parse(searchResults);
+
+                for (var el in searchResults) {
+                    let addedBy = searchResults[el]['user'];
+                    let serialNumber = el;
+                    let calibLink = 'https://calibration.glitch.me/calibration/' + serialNumber;
+                    let calibView = '<a href="' + calibLink + '" target="_blank"><i class="fa fa-eye"></i></a>'
+                    let calibDownload = '<a href="' + calibLink +
+                        '" download><i class="fa fa-download"></i></a>'
+
+                    $('#calibTable').append('<tr><td>' + serialNumber + '</td><td>' + addedBy + '</td><td>' +
+                        calibView + '</td><td>' + calibDownload + '</td></tr>')
+                }
+
+
+            });
+        }
+
+        $(document).ready(function () {
+            $("#calibInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#calibTable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
+        function showSearchBox() {
+            $('#toggleButton').click()
+        }
+
+        function destroyCard(n) {
+            $('#calibration' + n).hide()
+        }
+
+        window.onbeforeunload = function () {
+            return "Leave this page ?";
+        }
+    </script>
+
+
+</body>
+
+</html>
+;
